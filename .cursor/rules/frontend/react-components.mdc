@@ -1,0 +1,71 @@
+---
+description: "Standards for React components, folder structure, and shadcn/ui integration in the PWA"
+globs: apps/pwa/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Components & Architecture (PWA)
+
+## Folder Structure
+
+| Folder | What goes here |
+|---|---|
+| `src/screens/[domain]/` | Route-level screen + scoped components/hooks/types |
+| `src/components/` | Shared UI used by 2+ domains |
+| `src/hooks/` | Global shared hooks (useOfflineStatus, etc.) |
+| `src/utils/` | Pure functions, formatters, helpers — no React |
+| `src/types/` | Global TypeScript types/interfaces |
+
+## Component Rules
+
+- **Shadcn first:** Check `src/components/ui/` before building custom elements.
+- **Size limit:** Component > 100 lines → split into sub-components in the same folder.
+- **Screen limit:** `screens/[domain]/index.tsx` must stay < 80 lines. Extract sections.
+- **No logic in screens:** All data/async logic lives in `screens/[domain]/hooks/`.
+- **Props:** Use `interface [Name]Props`. Always export it.
+
+```tsx
+// ✅ GOOD — small, typed, accessible
+export interface StatusBadgeProps {
+  status: 'pendente' | 'conferido' | 'avaria';
+}
+
+export const StatusBadge = ({ status }: StatusBadgeProps) => {
+  const styles: Record<StatusBadgeProps['status'], string> = {
+    pendente:  'bg-yellow-100 text-yellow-800',
+    conferido: 'bg-green-100 text-green-800',
+    avaria:    'bg-red-100 text-red-800',
+  };
+
+  return (
+    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}>
+      {status}
+    </span>
+  );
+};
+```
+
+```tsx
+// ❌ BAD — logic inside screen, no prop types, too long
+export default function Screen() {
+  const { data } = useQuery(...); // logic here
+  return <div style={{ width: 312 }}>...</div>; // arbitrary value
+}
+```
+
+## Naming Conventions
+
+- Files: `PascalCase.tsx` for components, `camelCase.ts` for hooks/utils.
+- Event handlers: prefix with `handle` → `handleSelect`, `handleSubmit`.
+- Hooks: prefix with `use` → `useDemanda`, `useAvaria`.
+- Named exports only — never `export default`.
+
+## Async State UI (mandatory)
+
+Every screen with async data must render three states:
+
+```tsx
+if (isLoading) return <[Domain]Skeleton />;
+if (isError)   return <ErrorState message="..." />;
+return <[Domain]List items={data} />;
+```

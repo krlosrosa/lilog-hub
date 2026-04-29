@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ─── Surfaces (design.md → Tonal Layering) ─── */
+    --background:          240 1% 98%;   /* #f9f9fc */
+    --foreground:          210 7% 11%;   /* #1a1c1e */
+
+    --card:                0 0% 100%;    /* #ffffff  surface-container-lowest */
+    --card-foreground:     210 7% 11%;   /* #1a1c1e */
+
+    /* ─── Primary (Purple #451ebb) ─── */
+    --primary:             255 72% 43%;  /* #451ebb */
+    --primary-foreground:  0 0% 100%;    /* #ffffff */
+
+    /* ─── Secondary (Muted lavender) ─── */
+    --secondary:           256 32% 91%;  /* #e4e0ef  secondary-container */
+    --secondary-foreground: 250 6% 39%;  /* #5f5d69 */
+
+    /* ─── Muted (low-emphasis surfaces) ─── */
+    --muted:               240 6% 94%;   /* #eeeef0  surface-container */
+    --muted-foreground:    252 10% 30%;  /* #484554  on-surface-variant */
+
+    /* ─── Accent (light purple highlight) ─── */
+    --accent:              255 100% 94%; /* #e6deff  primary-fixed */
+    --accent-foreground:   254 69% 44%;  /* #4723be  on-primary-fixed-variant */
+
+    /* ─── Destructive (Error) ─── */
+    --destructive:         0 75% 42%;    /* #ba1a1a */
+    --destructive-foreground: 0 0% 100%; /* #ffffff */
+
+    /* ─── Borders & Inputs ─── */
+    --border:              256 19% 81%;  /* #c9c4d7  outline-variant */
+    --input:               256 19% 81%;  /* #c9c4d7 */
+    --ring:                255 72% 43%;  /* #451ebb  primary (focus ring) */
+
+    /* ─── Radius (design.md: cards/buttons = 16px) ─── */
+    --radius: 1rem;
+  }
+
+  /* ─── Typography ─── */
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Heading scale — Plus Jakarta Sans */
+  h1 { font-size: 24px; font-weight: 700; line-height: 32px; }
+  h2 { font-size: 20px; font-weight: 600; line-height: 28px; }
+
+  /* Labels — Inter */
+  label,
+  .label-md,
+  .label-sm {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Surface elevation tokens (design.md Tonal Layers) */
+  .surface-lowest  { background-color: #ffffff; }   /* Level 0 card */
+  .surface-low     { background-color: #f3f3f6; }   /* surface-container-low */
+  .surface-default { background-color: #eeeef0; }   /* surface-container */
+  .surface-high    { background-color: #e8e8ea; }   /* surface-container-high */
+  .surface-highest { background-color: #e2e2e5; }   /* surface-container-highest */
+
+  /* Typography tokens */
+  .headline-lg {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 24px; font-weight: 700; line-height: 32px;
+  }
+  .headline-md {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 20px; font-weight: 600; line-height: 28px;
+  }
+  .body-lg {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 16px; font-weight: 400; line-height: 24px;
+  }
+  .body-md {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-size: 14px; font-weight: 400; line-height: 20px;
+  }
+  .label-md {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px; font-weight: 500; line-height: 16px; letter-spacing: 0.5px;
+  }
+  .label-sm {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 10px; font-weight: 600; line-height: 14px; letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

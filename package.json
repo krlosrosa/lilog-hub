@@ -1,0 +1,21 @@
+{
+  "name": "lilo-wms",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "db:generate": "pnpm --filter @lilo-wms/db db:generate",
+    "db:migrate": "pnpm --filter @lilo-wms/db db:migrate",
+    "db:push": "pnpm --filter @lilo-wms/db db:push"
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": { "node": ">=20" }
+}

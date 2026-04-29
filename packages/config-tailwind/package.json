@@ -1,0 +1,10 @@
+{
+  "name": "@lilo-wms/config-tailwind",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./tailwind.preset.cjs" },
+  "scripts": { "build": "node -e \"process.exit(0)\"" },
+  "dependencies": { "tailwindcss-animate": "^1.0.7" },
+  "peerDependencies": { "tailwindcss": "^3.4.0" }
+}

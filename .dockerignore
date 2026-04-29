@@ -1,0 +1,15 @@
+node_modules
+.git
+.gitignore
+.turbo
+**/.next
+apps/**/dist
+packages/**/dist
+stitch
+.cursor
+*.md
+.env
+.env.*
+coverage
+**/__tests__
+pnpm-debug.log*

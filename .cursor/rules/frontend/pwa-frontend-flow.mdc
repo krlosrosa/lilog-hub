@@ -1,0 +1,157 @@
+---
+description: "Orchestrates HTML → PWA React implementation. Use when converting HTML prototypes into PWA screens using TypeScript, Shadcn, Tailwind, and React Query."
+globs: apps/pwa/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# PWA Frontend Flow (HTML → React)
+
+You are a Senior Front-End Engineer. Transform **HTML prototypes** into production-ready PWA screens following the standards below. Do NOT touch any backend or contract layer.
+
+## Source of Truth
+- HTML files live in `stitch/pwa/<domain>/`.
+- Target app: `apps/pwa/src/`.
+
+---
+
+## Folder Structure (Mandatory)
+
+```
+apps/pwa/src/
+├── screens/           # One folder per domain (route-level components)
+│   └── [domain]/
+│       ├── index.tsx          # Screen entry — thin, only composes sections
+│       ├── components/        # Screen-scoped components (not shared)
+│       │   └── [ComponentName].tsx
+│       ├── hooks/             # Screen-scoped hooks
+│       │   └── use[Domain].ts
+│       └── types.ts           # Screen-scoped types/interfaces
+│
+├── components/        # Truly shared, reusable UI components
+│   └── [ComponentName]/
+│       └── index.tsx
+│
+├── hooks/             # Global shared hooks (e.g. useOfflineStatus)
+├── utils/             # Pure functions, formatters, helpers
+├── types/             # Global shared TypeScript types/interfaces
+└── lib/               # Infra setup (queryClient, api, etc.)
+```
+
+**Rules:**
+- A `screen/[domain]/index.tsx` must stay under **80 lines**. Extract every section.
+- A component that exceeds **100 lines** must be split.
+- Never put business logic inside `index.tsx` — delegate to hooks.
+- Shared components go to `src/components/` only when used by **2+ domains**.
+
+---
+
+## Execution Workflow
+
+### 1. HTML Analysis
+- Read the HTML file in `stitch/pwa/<domain>/`.
+- Extract: data fields, inputs, buttons, lists, conditional states.
+- Map `name`, `id`, and classes to TypeScript prop/interface names.
+
+### 2. Types First (`types.ts`)
+- Define all domain interfaces before touching components.
+- Use `interface` for props, `type` for unions/primitives.
+
+```ts
+// ✅ screens/recebimento/types.ts
+export interface DemandaItem {
+  id: string;
+  codigo: string;
+  descricao: string;
+  quantidade: number;
+  status: 'pendente' | 'conferido' | 'avaria';
+}
+
+export interface DemandaFiltros {
+  busca: string;
+  status: DemandaItem['status'] | 'todos';
+}
+```
+
+### 3. API Hook (`hooks/use[Domain].ts`)
+- Encapsulate ALL server-state logic here — no `useQuery`/`useMutation` inside components.
+- Return typed, named values.
+
+```ts
+// ✅ screens/recebimento/hooks/useDemanda.ts
+export const useDemanda = (filtros: DemandaFiltros) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['demandas', filtros],
+    queryFn: () => fetchDemandas(filtros),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  return { demandas: data ?? [], isLoading, isError };
+};
+```
+
+### 4. Components (`components/[Name].tsx`)
+- One component = one responsibility.
+- Props via `interface [Name]Props` exported from the file.
+- All styling via Tailwind. Check `src/components/ui/` (shadcn) first.
+
+```tsx
+// ✅ screens/recebimento/components/DemandaCard.tsx
+export interface DemandaCardProps {
+  item: DemandaItem;
+  onSelect: (id: string) => void;
+}
+
+export const DemandaCard = ({ item, onSelect }: DemandaCardProps) => (
+  <button
+    type="button"
+    aria-label={`Selecionar ${item.descricao}`}
+    onClick={() => onSelect(item.id)}
+    className="w-full flex items-center gap-3 p-4 rounded-xl border bg-card active:scale-95 transition-transform"
+  >
+    ...
+  </button>
+);
+```
+
+### 5. Screen (`index.tsx`)
+- Thin composition layer — import hook, import components, wire together.
+- Handle Loading → Skeleton, Error → Toast/ErrorState.
+
+```tsx
+// ✅ screens/recebimento/index.tsx
+export const RecebimentoScreen = () => {
+  const [filtros, setFiltros] = useState<DemandaFiltros>({ busca: '', status: 'todos' });
+  const { demandas, isLoading, isError } = useDemanda(filtros);
+
+  if (isLoading) return <DemandaListSkeleton />;
+  if (isError) return <ErrorState message="Falha ao carregar demandas" />;
+
+  return (
+    <PageLayout title="Recebimento">
+      <DemandaFiltroBar value={filtros} onChange={setFiltros} />
+      <DemandaList items={demandas} />
+    </PageLayout>
+  );
+};
+```
+
+### 6. Router Registration
+- Add the new route to `src/router.tsx` using lazy loading.
+
+```tsx
+const RecebimentoScreen = lazy(() =>
+  import('@/screens/recebimento').then(m => ({ default: m.RecebimentoScreen }))
+);
+```
+
+---
+
+## Quality Checklist
+- [ ] Types defined before components?
+- [ ] No `useQuery`/`useMutation` directly in JSX components?
+- [ ] Screen `index.tsx` < 80 lines?
+- [ ] Every async state has Loading + Error UI?
+- [ ] All interactive elements have `aria-label` / keyboard support?
+- [ ] Mobile-first Tailwind classes (base → `md:` → `lg:`)?
+- [ ] Shadcn component used instead of custom when available?
+- [ ] No arbitrary Tailwind values (e.g., `w-[312px]`)?

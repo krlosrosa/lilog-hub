@@ -1,0 +1,87 @@
+---
+description: "Standards for Tailwind CSS, mobile-first design, and accessibility in the PWA"
+globs: apps/pwa/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Styling & Design System (PWA)
+
+## Mobile-First (mandatory)
+
+Write base classes for mobile screens first. Add breakpoint prefixes only to override for larger viewports.
+
+```tsx
+// ✅ GOOD
+<div className="flex flex-col gap-3 p-4 md:flex-row md:gap-6 md:p-8">
+
+// ❌ BAD — desktop-first
+<div className="hidden md:flex">
+```
+
+## Tailwind Rules
+
+- **No arbitrary values:** `w-[312px]`, `text-[13px]`, `mt-[7px]` are forbidden. Use the Tailwind scale.
+- **No inline styles:** `style={{ color: '#fff' }}` is forbidden. Map to a Tailwind token.
+- **Spacing scale:** Use `p-4`, `gap-3`, `mt-6` — multiples of 4 by default.
+- **Colors:** Only use tokens defined in `tailwind.config.js` and the shadcn CSS variables (`bg-card`, `text-foreground`, `border`, etc.).
+
+```tsx
+// ✅ Design-system tokens
+<div className="bg-card text-card-foreground border rounded-xl shadow-sm p-4">
+
+// ❌ Hard-coded colors
+<div className="bg-[#1a1a2e] text-[#eee]">
+```
+
+## Touch Targets (PWA)
+
+Interactive elements in mobile must have a minimum touch area of 44×44px.
+
+```tsx
+// ✅ Minimum touch target
+<button className="min-h-[44px] min-w-[44px] flex items-center justify-center p-3">
+
+// Use active: prefix for mobile press feedback
+<button className="active:scale-95 transition-transform">
+```
+
+## Accessibility (A11y)
+
+- Images: always descriptive `alt` text.
+- Icon-only buttons/links: `aria-label` is required.
+- Heading hierarchy: `h1 → h2 → h3` — never skip levels.
+- Focusable elements: must be reachable via keyboard (`tabIndex={0}` for non-native elements).
+- Status / loading regions: use `aria-live="polite"` for dynamic content updates.
+
+```tsx
+// ✅ Icon button
+<button aria-label="Fechar modal" onClick={handleClose}>
+  <X className="size-5" />
+</button>
+
+// ✅ Live region for async feedback
+<p aria-live="polite" className="sr-only">
+  {isLoading ? 'Carregando...' : ''}
+</p>
+```
+
+## Component Variants
+
+Use `cva` (class-variance-authority) for components with multiple visual states instead of conditional string concatenation.
+
+```tsx
+import { cva } from 'class-variance-authority';
+
+const badgeVariants = cva(
+  'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium',
+  {
+    variants: {
+      status: {
+        pendente:  'bg-yellow-100 text-yellow-800',
+        conferido: 'bg-green-100 text-green-800',
+        avaria:    'bg-red-100 text-red-800',
+      },
+    },
+  }
+);
+```

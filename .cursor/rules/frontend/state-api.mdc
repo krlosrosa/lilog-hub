@@ -1,0 +1,86 @@
+---
+description: "Standards for React Query, API calls, Zod validation, and state management in the PWA"
+globs: apps/pwa/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# State & Data Fetching (PWA)
+
+## Data Flow
+
+```
+Screen (index.tsx)
+  └─ calls → screens/[domain]/hooks/use[Domain].ts
+                └─ calls → src/lib/api.ts (axios/fetch instance)
+                └─ uses  → @tanstack/react-query
+                └─ validates → zod schema from src/types/ or packages/contracts
+```
+
+## React Query Rules
+
+- **Never** call `useQuery` or `useMutation` directly inside a component JSX file.
+- All server state lives in `screens/[domain]/hooks/use[Domain].ts`.
+- Use `queryKey` arrays that include all filter/param dependencies.
+- Call `queryClient.invalidateQueries` inside `onSuccess` of mutations.
+
+```ts
+// ✅ screens/recebimento/hooks/useDemanda.ts
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api';
+import type { DemandaItem } from '../types';
+
+const QUERY_KEY = 'demandas';
+
+export const useDemandas = (filtros: DemandaFiltros) =>
+  useQuery({
+    queryKey: [QUERY_KEY, filtros],
+    queryFn: () => apiClient.get<DemandaItem[]>('/demandas', { params: filtros }),
+    staleTime: 1000 * 60 * 5,
+  });
+
+export const useConferirItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.patch(`/demandas/${id}/conferir`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [QUERY_KEY] }),
+  });
+};
+```
+
+## API Client
+
+- Use the pre-configured instance at `src/lib/api.ts` for all requests.
+- Never use raw `fetch` inside hooks — always go through the client.
+
+## Validation with Zod
+
+- Define schemas alongside types in `screens/[domain]/types.ts` or `src/types/`.
+- Validate API responses at the hook layer, not in components.
+
+```ts
+// ✅ Validate response shape
+const demandaSchema = z.object({
+  id: z.string(),
+  codigo: z.string(),
+  quantidade: z.number(),
+  status: z.enum(['pendente', 'conferido', 'avaria']),
+});
+```
+
+## Offline / PWA State
+
+- Use `useOfflineStatus` from `src/hooks/useOfflineStatus.ts` to conditionally disable mutations.
+- Leverage the pre-configured `queryPersister` (IndexedDB) from `src/lib/query-client.ts` for offline cache.
+
+```tsx
+const { isOffline } = useOfflineStatus();
+
+<Button disabled={isOffline} onClick={handleConferir}>
+  Confirmar
+</Button>
+```
+
+## Local / UI State
+
+- `useState` for form inputs, toggles, modals — keep it local to the component.
+- Never use global state (Context/Zustand) unless the state is truly cross-screen.

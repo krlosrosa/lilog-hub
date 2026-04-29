@@ -1,0 +1,155 @@
+---
+description: "Design system tokens for the PWA — colors, typography, spacing and components. Always follow design.md."
+globs: apps/pwa/**/*.{ts,tsx,css}
+alwaysApply: false
+---
+
+# Design System — Vibrant Logistics (PWA)
+
+> Source of truth: `design.md` in the repo root.  
+> Tokens are mapped to CSS variables (shadcn pattern) and Tailwind utilities below.
+
+---
+
+## Colors
+
+### Primary — Purple `#451ebb`
+| Use | Tailwind class |
+|---|---|
+| Primary button bg | `bg-primary` |
+| Primary button text | `text-primary-foreground` |
+| Primary container (darker) | `bg-primary-container` |
+| Highlight / accent bg | `bg-accent` |
+| Accent text | `text-accent-foreground` |
+| Focus ring | automatic via `ring` CSS var |
+
+### Surface Elevation (Tonal Layers — no shadows)
+| Level | Tailwind class | Hex | When to use |
+|---|---|---|---|
+| Lowest (cards) | `bg-surface-lowest` or `bg-card` | `#ffffff` | Cards, list items |
+| Low | `bg-surface-low` | `#f3f3f6` | Section backgrounds |
+| Default | `bg-surface` or `bg-muted` | `#eeeef0` | Container fills |
+| High | `bg-surface-high` | `#e8e8ea` | Selected / active row |
+| Highest | `bg-surface-highest` | `#e2e2e5` | Pressed state |
+| Background | `bg-background` | `#f9f9fc` | Page canvas |
+
+### Semantic
+| Token | Tailwind class | Hex | Use |
+|---|---|---|---|
+| Text (primary) | `text-foreground` | `#1a1c1e` | All body text |
+| Text (secondary) | `text-muted-foreground` | `#484554` | Labels, hints |
+| Border | `border-border` | `#c9c4d7` | Cards, inputs, dividers |
+| Outline | `text-outline` | `#797586` | Icon-only borders |
+| Tertiary / Amber | `bg-tertiary-container` + `text-tertiary-foreground` | Amber | Warnings, priority |
+| Error | `bg-destructive` + `text-destructive-foreground` | `#ba1a1a` | Error states |
+
+---
+
+## Typography
+
+| Style | Tailwind class | Font | Use |
+|---|---|---|---|
+| Page title | `text-headline-lg font-bold font-sans` | Plus Jakarta Sans 24/700 | Screen headers |
+| Section title | `text-headline-md font-semibold font-sans` | Plus Jakarta Sans 20/600 | Card/section headers |
+| Body default | `text-body-lg font-sans` | Plus Jakarta Sans 16/400 | Descriptions |
+| Body small | `text-body-md font-sans` | Plus Jakarta Sans 14/400 | Secondary text |
+| Label (tag, caption) | `text-label-md font-label` | Inter 12/500 | Status chips, timestamps |
+| Label tiny (SKU, code) | `text-label-sm font-label uppercase tracking-wider` | Inter 10/600 | Barcodes, SKUs |
+
+```tsx
+// ✅ Page header
+<h1 className="text-headline-lg font-bold text-foreground">Recebimento</h1>
+
+// ✅ Status label (Inter)
+<span className="text-label-md font-label text-muted-foreground">Cod: 00123</span>
+```
+
+---
+
+## Spacing
+
+| Token | Value | Tailwind |
+|---|---|---|
+| xs | 4px | `p-xs` / `gap-xs` |
+| sm | 8px | `p-sm` / `gap-sm` |
+| md | 16px | `p-md` / `gap-md` — default card padding |
+| lg | 24px | `p-lg` / `gap-lg` |
+| xl | 32px | `p-xl` / `gap-xl` |
+| gutter | 12px | `gap-gutter` — vertical list stacks |
+| margin-mobile | 20px | `px-margin-mobile` — horizontal safe edges |
+
+---
+
+## Border Radius
+
+| Token | Value | Use |
+|---|---|---|
+| `rounded` (default) | 8px | Inputs, small containers |
+| `rounded-lg` | 16px | **Cards, primary buttons** |
+| `rounded-full` | 9999px | Status chips / pills |
+
+---
+
+## Components
+
+### Button
+```tsx
+// Primary
+<button className="min-h-btn rounded-lg bg-primary text-primary-foreground px-md font-semibold active:scale-95 transition-transform">
+  Confirmar
+</button>
+
+// Secondary (outline)
+<button className="min-h-btn rounded-lg border border-primary text-primary bg-transparent px-md font-semibold">
+  Cancelar
+</button>
+```
+
+### Card (warehouse task item)
+```tsx
+<div className="bg-card rounded-lg border border-border p-md shadow-sm">
+  {/* quantity / location bold, top-right */}
+</div>
+```
+
+### Status Chip
+```tsx
+// Use rounded-full + low-sat bg + high-sat text
+<span className="rounded-full px-sm py-0.5 text-label-md font-label bg-tertiary-container text-tertiary">
+  Urgente
+</span>
+```
+
+### Input
+```tsx
+// Subtle border → turns primary on focus (shadcn Input handles this)
+<Input className="rounded border-border focus:border-primary focus:ring-primary" />
+```
+
+---
+
+## Rules (never break these)
+
+### Theme-first — single source of truth
+All colors and fonts are defined once in `globals.css` (CSS variables) and
+`tailwind.config.ts`. Changing the theme in those two files updates the entire
+app. **Any hardcoded value breaks this contract.**
+
+```tsx
+// ❌ FORBIDDEN — hardcoded, breaks theming
+<p style={{ color: '#484554', fontFamily: 'Inter' }}>
+<div className="text-[#1a1c1e] bg-[#eeeef0] font-['Plus_Jakarta_Sans']">
+<div className="text-gray-900 bg-gray-100">
+
+// ✅ REQUIRED — semantic tokens, theme-aware
+<p className="text-muted-foreground font-label">
+<div className="text-foreground bg-surface font-sans">
+```
+
+- ❌ No arbitrary color values: `bg-[#fff]`, `text-[#333]`.
+- ❌ No arbitrary font values: `font-['Inter']`, `font-['Plus_Jakarta_Sans']`.
+- ❌ No inline `style={{}}` for colors, fonts, or spacing.
+- ❌ No Tailwind generic palette: `text-gray-*`, `bg-slate-*`, `text-zinc-*` — always use semantic tokens.
+- ✅ Mobile-first: base classes for 375px+, `md:` for ≥768px.
+- ✅ Touch targets: interactive elements must have `min-h-touch` (44px) or `min-h-btn` (48px).
+- ✅ All shadcn components inherit these tokens automatically via CSS variables.

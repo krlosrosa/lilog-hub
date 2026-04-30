@@ -67,8 +67,6 @@ export interface ConferenciaItemDetail {
   sku: string;
   description: string;
   lote: string;
-  expectedBoxes: number;
-  expectedUnits: number;
 }
 
 /** Lote já conferido na lista de histórico. */

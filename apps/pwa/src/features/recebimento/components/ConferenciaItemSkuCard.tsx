@@ -130,54 +130,6 @@ export const ConferenciaItemSkuCard = ({ detail }: ConferenciaItemSkuCardProps) 
 
       </div>
 
-
-
-      <div className="space-y-xs">
-
-        <p className="font-label text-label-md font-medium uppercase tracking-wider text-muted-foreground">
-
-          Quantidade Esperada
-
-        </p>
-
-        <div className="grid grid-cols-2 gap-md">
-
-          <div className="flex flex-col rounded bg-surface-low px-md py-sm">
-
-            <span className="font-label text-label-sm font-bold uppercase text-muted-foreground">
-
-              Caixas
-
-            </span>
-
-            <span className="font-sans text-headline-md font-semibold text-foreground">
-
-              {detail.expectedBoxes}
-
-            </span>
-
-          </div>
-
-          <div className="flex flex-col rounded bg-surface-low px-md py-sm">
-
-            <span className="font-label text-label-sm font-bold uppercase text-muted-foreground">
-
-              Unidades
-
-            </span>
-
-            <span className="font-sans text-headline-md font-semibold text-foreground">
-
-              {detail.expectedUnits}
-
-            </span>
-
-          </div>
-
-        </div>
-
-      </div>
-
     </section>
 
   );

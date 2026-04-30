@@ -1,3 +1,7 @@
+import type { KeyboardEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { Icon } from '@/components/Icon';
 import { ConferenciaFilterChips } from '@/features/recebimento/components/ConferenciaFilterChips';
 import { ConferenciaFooter } from '@/features/recebimento/components/ConferenciaFooter';
 import { ConferenciaHeader } from '@/features/recebimento/components/ConferenciaHeader';
@@ -45,6 +49,18 @@ const STATIC_ITEMS: ConferenciaItem[] = [
 ];
 
 export const ConferenciaScreen = () => {
+  const navigate = useNavigate();
+
+  const handleAddNewItemClick = () => {
+    navigate('/recebimento/conferencia/item');
+  };
+
+  const handleAddNewItemKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    handleAddNewItemClick();
+  };
+
   return (
 
     <div className="min-h-dvh bg-background font-sans text-foreground">
@@ -80,6 +96,16 @@ export const ConferenciaScreen = () => {
         </div>
 
       </main>
+
+      <button
+        type="button"
+        onClick={handleAddNewItemClick}
+        onKeyDown={handleAddNewItemKeyDown}
+        aria-label="Adicionar novo item de conferência"
+        className="fixed bottom-24 right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+      >
+        <Icon name="add" className="text-2xl" />
+      </button>
 
       <ConferenciaFooter />
 

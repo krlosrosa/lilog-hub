@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { ConferenciaItemFormCard } from '@/features/recebimento/components/ConferenciaItemFormCard';
@@ -41,8 +42,14 @@ export const ConferenciaItemScreen = () => {
   const location = useLocation();
   const routeState = location.state as ConferenciaItemRouteState | undefined;
 
+  const [sku, setSku] = useState(routeState?.sku ?? '');
+
+  useEffect(() => {
+    setSku(routeState?.sku ?? '');
+  }, [location.key, routeState?.sku]);
+
   const detail: ConferenciaItemDetail = {
-    sku: routeState?.sku ?? '',
+    sku,
     description: routeState?.description ?? '',
     lote: routeState?.lote ?? '',
   };
@@ -53,7 +60,7 @@ export const ConferenciaItemScreen = () => {
     <div className="min-h-dvh bg-background font-sans text-foreground">
       <ConferenciaItemHeader />
       <main className="mx-auto max-w-lg space-y-gutter px-margin-mobile pb-32 pt-20">
-        <ConferenciaItemSkuCard detail={detail} />
+        <ConferenciaItemSkuCard detail={detail} onSkuChange={setSku} />
         <ConferenciaItemFormCard />
         <LotesConferidosList lotes={STATIC_LOTES} />
         <ItensAvariaList itens={avariasFiltradas} />

@@ -1,20 +1,18 @@
+import type { ChangeEvent } from 'react';
+
 import { Icon } from '@/components/Icon';
-
-
 
 import type { ConferenciaItemDetail } from '@/features/recebimento/types/types';
 
-
-
 export interface ConferenciaItemSkuCardProps {
-
   detail: ConferenciaItemDetail;
-
+  onSkuChange: (value: string) => void;
 }
 
-
-
-export const ConferenciaItemSkuCard = ({ detail }: ConferenciaItemSkuCardProps) => {
+export const ConferenciaItemSkuCard = ({ detail, onSkuChange }: ConferenciaItemSkuCardProps) => {
+  const handleSkuChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onSkuChange(event.target.value);
+  };
 
   return (
 
@@ -54,13 +52,17 @@ export const ConferenciaItemSkuCard = ({ detail }: ConferenciaItemSkuCardProps) 
 
             id="conferencia-item-sku-input"
 
-            readOnly
+            type="text"
+
+            autoComplete="off"
 
             value={detail.sku}
 
-            className="min-h-btn w-full rounded border-0 bg-surface-low px-md font-sans text-headline-md font-semibold text-primary outline-none ring-primary focus-visible:ring-2"
+            onChange={handleSkuChange}
 
-            aria-readonly="true"
+            className="min-h-btn w-full rounded border-0 bg-surface-low px-md pr-12 font-sans text-headline-md font-semibold text-primary outline-none ring-primary focus-visible:ring-2"
+
+            aria-describedby="conferencia-item-sku-hint"
 
           />
 
@@ -77,6 +79,12 @@ export const ConferenciaItemSkuCard = ({ detail }: ConferenciaItemSkuCardProps) 
           </span>
 
         </div>
+
+        <p id="conferencia-item-sku-hint" className="sr-only">
+
+          Campo editável. Digite ou altere o código SKU do item.
+
+        </p>
 
       </div>
 
@@ -135,5 +143,4 @@ export const ConferenciaItemSkuCard = ({ detail }: ConferenciaItemSkuCardProps) 
   );
 
 };
-
 

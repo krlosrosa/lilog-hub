@@ -11,6 +11,7 @@ COPY apps ./apps
 COPY packages ./packages
 RUN pnpm install --frozen-lockfile
 RUN pnpm turbo run build --filter=@lilo-wms/web
+RUN mkdir -p /app/apps/web/public
 
 FROM node:20-alpine AS runner
 WORKDIR /app
